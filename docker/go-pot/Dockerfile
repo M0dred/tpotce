@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 RUN <<EOF
 apk -U add git
 mkdir -p /opt
@@ -16,14 +16,8 @@ FROM alpine:3.20
 COPY --from=builder /opt/go-pot/go-pot /opt/go-pot/go-pot
 COPY --from=builder /opt/go-pot/config.yml /opt/go-pot/config.yml
 #
-# Setup user, groups and configs
-RUN <<EOF
-addgroup -g 2000 go-pot
-adduser -S -s /bin/ash -u 2000 -D -g 2000 go-pot
-EOF
-#
 STOPSIGNAL SIGINT
-USER go-pot:go-pot
+USER 2000:2000
 WORKDIR /opt/go-pot
 CMD ["start", "--host", "0.0.0.0", "--config-file", "config.yml"]
 ENTRYPOINT ["./go-pot"]
